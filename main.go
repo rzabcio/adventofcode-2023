@@ -16,6 +16,7 @@ func main() {
 
 	m := map[string]func(string) int{
 		"day1_1": Day01_1, "day1_2": Day01_2,
+		"day2_1": Day02_1, "day2_2": Day02_2,
 	}
 
 	day := &cobra.Command{
