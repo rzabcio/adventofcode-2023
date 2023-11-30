@@ -23,6 +23,10 @@ func Day02_1(filename string) (result int) {
 }
 
 func Day02_2(filename string) (result int) {
+	games := ReadGames(filename)
+	for _, game := range games {
+		result += game.CountMul
+	}
 	return result
 }
 
@@ -31,6 +35,7 @@ type Game struct {
 	RedCont    int
 	GreenCount int
 	BlueCount  int
+	CountMul   int
 	Rounds     []GameRound
 }
 
@@ -89,5 +94,6 @@ func ReadGame(line string) (game Game) {
 		}
 		game.Rounds = append(game.Rounds, round)
 	}
+	game.CountMul = game.RedCont * game.GreenCount * game.BlueCount
 	return game
 }
