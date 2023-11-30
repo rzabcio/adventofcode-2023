@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"unicode"
 )
@@ -63,7 +62,7 @@ func Day01_2(filename string) (result int) {
 			}
 		}
 		subResult := firstNum*10 + secondNum
-		fmt.Printf("%s -> %v -> %d\n", line, nums, subResult)
+		// fmt.Printf("%s -> %v -> %d\n", line, nums, subResult)
 		result += subResult
 	}
 	return result
