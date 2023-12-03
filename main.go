@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -11,6 +9,7 @@ import (
 	"github.com/thoas/go-funk"
 
 	"github.com/rzabcio/adventofcode-2023/day04"
+	"github.com/rzabcio/adventofcode-2023/utils"
 )
 
 func main() {
@@ -56,20 +55,7 @@ func inputSlInt(filename string) []int {
 }
 
 func inputCh(filename string) (ch chan string) {
-	ch = make(chan string)
-	go func() {
-		file, err := os.Open(filename)
-		if err != nil {
-			close(ch)
-			return
-		}
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			ch <- scanner.Text()
-		}
-		close(ch)
-	}()
-	return ch
+	return utils.InputCh(filename)
 }
 
 func inputChInt(filename string) (ch chan int) {
