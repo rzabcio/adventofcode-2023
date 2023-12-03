@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"github.com/rzabcio/adventofcode-2023/day04"
 )
 
 func TestDay01(t *testing.T) {
@@ -38,11 +40,11 @@ func TestDay03(t *testing.T) {
 }
 
 func TestDay04(t *testing.T) {
-	got, want := Day04_1("input-files/day04-test1.txt"), 13
+	got, want := day04.Day04_1("input-files/day04-test1.txt"), 13
 	if got != want {
 		t.Errorf("Day03_2(test1) = %d; want %d", got, want)
 	}
-	got, want = Day04_2("input-files/day04-test1.txt"), 0
+	got, want = day04.Day04_2("input-files/day04-test1.txt"), 0
 	if got != want {
 		t.Errorf("Day04_2(test1) = %d; want %d", got, want)
 	}
