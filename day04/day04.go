@@ -15,7 +15,8 @@ func Day04_1(filename string) (result int) {
 }
 
 func Day04_2(filename string) (result int) {
-	return result
+	game := NewGame(filename)
+	return game.CountLuckyCards()
 }
 
 type Game struct {
@@ -27,6 +28,7 @@ type Card struct {
 	Winning []int
 	Random  []int
 	Lucky   []int
+	Copies  int
 }
 
 func NewGame(filename string) *Game {
@@ -41,6 +43,27 @@ func (g *Game) FindLuckyValue() int {
 	result := 0
 	for _, card := range g.Cards {
 		result += card.FindLuckyValue()
+	}
+	return result
+}
+
+// part2
+func (g *Game) CountLuckyCards() int {
+	result := 0
+	// first run - increase number of copies depending on number of lucky numbers
+	for i, card := range g.Cards {
+		for k := 0; k < card.Copies; k++ {
+			for j := i + 1; j < i+1+len(card.Lucky); j++ {
+				if j >= len(g.Cards) {
+					break
+				}
+				g.Cards[j].Copies++
+			}
+		}
+	}
+	// second run - count number of copies
+	for _, card := range g.Cards {
+		result += card.Copies
 	}
 	return result
 }
@@ -63,6 +86,7 @@ func NewCard(line string) *Card {
 		card.Random = append(card.Random, no)
 	}
 	card.FindLuckyNums()
+	card.Copies = 1 // part2: initial one copy of card
 	return card
 }
 
@@ -93,5 +117,5 @@ func (g *Game) String() string {
 }
 
 func (c *Card) String() string {
-	return fmt.Sprintf("Card{No: %d, Winning: %v, Random: %v, Lucky: %v => %d}", c.No, c.Winning, c.Random, c.Lucky, c.FindLuckyValue())
+	return fmt.Sprintf("Card{No: %d, Winning: %v, Random: %v, Lucky: %v => %d * %d = %d}", c.No, c.Winning, c.Random, c.Lucky, c.FindLuckyValue(), c.Copies, c.FindLuckyValue()*c.Copies)
 }
