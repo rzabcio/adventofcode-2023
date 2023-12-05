@@ -9,6 +9,7 @@ import (
 	"github.com/thoas/go-funk"
 
 	"github.com/rzabcio/adventofcode-2023/day04"
+	"github.com/rzabcio/adventofcode-2023/day05"
 	"github.com/rzabcio/adventofcode-2023/utils"
 )
 
@@ -20,6 +21,7 @@ func main() {
 		"day2_1": Day02_1, "day2_2": Day02_2,
 		"day3_1": Day03_1, "day3_2": Day03_2,
 		"day4_1": day04.Day04_1, "day4_2": day04.Day04_2,
+		"day5_1": day05.Day05_1, "day5_2": day05.Day05_2,
 	}
 
 	day := &cobra.Command{
