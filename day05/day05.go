@@ -17,11 +17,17 @@ func Day05_1(filename string) (result int) {
 }
 
 func Day05_2(filename string) (result int) {
-	return 46
+	almanac := NewAlmanac(filename)
+	locations := []int{}
+	for _, seedRange := range almanac.seedRanges {
+		locations = append(locations, almanac.findMinLocationForSeedRange(seedRange[0], seedRange[1]))
+	}
+	return utils.Min(locations)
 }
 
 type Almanac struct {
 	seeds                 []int
+	seedRanges            [][]int
 	seedToSoil            []AlmanacEntry
 	soilToFertilizer      []AlmanacEntry
 	fertilizerToWater     []AlmanacEntry
@@ -37,9 +43,22 @@ func NewAlmanac(filename string) (a Almanac) {
 	entries := []AlmanacEntry{}
 	for line := range utils.InputCh(filename) {
 		if strings.HasPrefix(line, "seeds:") {
+			// part 1
 			for _, nos := range strings.Fields(line[7:]) {
 				no, _ := strconv.Atoi(nos)
 				a.seeds = append(a.seeds, no)
+			}
+			// part 2
+			var seedStart int
+			var seedRange int
+			for i, nos := range strings.Fields(line[7:]) {
+				no, _ := strconv.Atoi(nos)
+				if i%2 == 0 {
+					seedStart = no
+				} else {
+					seedRange = no
+					a.seedRanges = append(a.seedRanges, []int{seedStart, seedRange})
+				}
 			}
 			continue
 		}
@@ -90,6 +109,7 @@ func NewAlmanac(filename string) (a Almanac) {
 	return
 }
 
+// part 1
 func (a Almanac) findLocationForSeed(seed int) (location int) {
 	soil := a.findSoilForSeed(seed)
 	fertilizer := a.findFertilizerForSoil(soil)
@@ -99,6 +119,18 @@ func (a Almanac) findLocationForSeed(seed int) (location int) {
 	humidity := a.findHumidityForTemperature(temperature)
 	location = a.findLocationForHumidity(humidity)
 	// fmt.Printf("seed %d -> soil %d -> fertilizer %d -> water %d -> light %d -> temperature %d -> humidity %d -> location %d\n", seed, soil, fertilizer, water, light, temperature, humidity, location)
+	return location
+}
+
+// part 2 - extreeeemeeeeelyyyy sloooooow (for final data > 5min)
+func (a Almanac) findMinLocationForSeedRange(seedStart, seedRange int) (location int) {
+	for seed := seedStart; seed < seedStart+seedRange; seed++ {
+		if location == 0 {
+			location = a.findLocationForSeed(seed)
+		} else {
+			location = utils.Min([]int{location, a.findLocationForSeed(seed)})
+		}
+	}
 	return location
 }
 
