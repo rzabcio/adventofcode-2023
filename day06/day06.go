@@ -21,7 +21,7 @@ func Day06_1(filename string) (result int) {
 }
 
 func Day06_2(filename string) (result int) {
-	return 0
+	return Day06_1(filename)
 }
 
 func readRaces(filename string) (races []Race) {
@@ -33,7 +33,6 @@ func readRaces(filename string) (races []Race) {
 				time, _ := strconv.Atoi(field)
 				halfTime := int(math.Ceil(float64(time) / 2))
 				races = append(races, Race{Time: time, HalfTime: halfTime})
-
 			}
 		}
 		if strings.HasPrefix(line, "Distance:") {
