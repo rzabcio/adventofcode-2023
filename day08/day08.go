@@ -3,6 +3,7 @@ package day08
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/rzabcio/adventofcode-2023/utils"
 )
@@ -15,6 +16,8 @@ func Day08_1(filename string) (result int) {
 }
 
 func Day08_2(filename string) (result int) {
+	m := ReadMap(filename)
+	result = m.GoToAllZ()
 	return result
 }
 
@@ -24,7 +27,7 @@ type Map struct {
 }
 
 func ReadMap(filename string) (m *Map) {
-	elementRegex := regexp.MustCompile(`^([A-Z]{3}) = \(([A-Z]{3}), ([A-Z]{3})\)$`)
+	elementRegex := regexp.MustCompile(`^([0-9A-Z]{3}) = \(([0-9A-Z]{3}), ([0-9A-Z]{3})\)$`)
 	m = new(Map)
 	for line := range utils.InputCh(filename) {
 		if m.Instruction == "" {
@@ -50,6 +53,7 @@ func ReadMap(filename string) (m *Map) {
 	return m
 }
 
+// part 1
 func (m *Map) GoToZZZ() (i int) {
 	current := "AAA"
 	for {
@@ -61,4 +65,37 @@ func (m *Map) GoToZZZ() (i int) {
 		i++
 	}
 	return i + 1
+}
+
+// part 2
+func (m *Map) GoToAllZ() (step int) {
+	currents := m.FindStarting()
+	lenght := len(currents)
+	fmt.Printf("Starting: %s\n", currents)
+	for {
+		instruction := string(m.Instruction[step%len(m.Instruction)])
+
+		needBreak := true
+		for i := 0; i < lenght; i++ {
+			currents[i] = m.Elements[currents[i]][instruction]
+			if currents[i][2] != 'Z' {
+				needBreak = false
+			}
+		}
+		fmt.Printf("- %d: %s => %s\n", step, instruction, currents)
+		if needBreak {
+			break
+		}
+		step++
+	}
+	return step + 1
+}
+
+func (m *Map) FindStarting() (starting []string) {
+	for element := range m.Elements {
+		if strings.HasSuffix(element, "A") {
+			starting = append(starting, element)
+		}
+	}
+	return starting
 }
