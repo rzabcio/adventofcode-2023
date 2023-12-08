@@ -25,13 +25,30 @@ func Day07_1(filename string) (result int) {
 }
 
 func Day07_2(filename string) (result int) {
-	result = 0
+	deals := readDeals2(filename)
+	// sort deals by rank
+	sort.Slice(deals, func(i, j int) bool {
+		return compareDeals(*deals[i], *deals[j])
+	})
+	// calculate result
+	for i, deal := range deals {
+		deals[i].Rank = i + 1
+		result += deal.Bet * deal.Rank
+	}
 	return result
 }
 
 func readDeals(filename string) (deals []*Deal) {
 	for line := range utils.InputCh(filename) {
 		deal := NewDeal(line)
+		deals = append(deals, deal)
+	}
+	return deals
+}
+
+func readDeals2(filename string) (deals []*Deal) {
+	for line := range utils.InputCh(filename) {
+		deal := NewDeal2(line)
 		deals = append(deals, deal)
 	}
 	return deals
@@ -50,6 +67,7 @@ type Deal struct {
 	Rank int
 }
 
+// --- part 1
 var cardValues = map[string]int{
 	"2": 2, "3": 3, "4": 4, "5": 5,
 	"6": 6, "7": 7, "8": 8, "9": 9,
@@ -83,6 +101,50 @@ func NewDeal(s string) *Deal {
 	return deal
 }
 
+// --- part 2
+var cardValues2 = map[string]int{
+	"J": 1, "2": 2, "3": 3, "4": 4, "5": 5,
+	"6": 6, "7": 7, "8": 8, "9": 9,
+	"T": 10, "Q": 12, "K": 13, "A": 14,
+}
+
+func NewDeal2(s string) *Deal {
+	deal := new(Deal)
+	fields := strings.Fields(s)
+	deal.ValCounts = make(map[int]int)
+	deal.Cards = fields[0]
+	for _, card := range deal.Cards { // change symbols to int values, count them
+		if cardInt, ok := cardValues2[string(card)]; ok {
+			deal.Values = append(deal.Values, cardInt)
+			deal.ValCounts[cardInt]++
+		} else {
+			panic("unknown card " + string(card))
+		}
+	}
+	// get only counts, sort them, convert to string for ranking
+	jokerCount := 0
+	for cardVal, cardInt := range deal.ValCounts {
+		if cardVal == 1 {
+			jokerCount = cardInt
+			continue
+		}
+		deal.ValSet = append(deal.ValSet, cardInt)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(deal.ValSet)))
+	if len(deal.ValSet) == 0 {
+		deal.ValSet = append(deal.ValSet, 0)
+	}
+	deal.ValSet[0] += jokerCount
+	deal.SetSymbol = strings.Trim(strings.Replace(fmt.Sprint(deal.ValSet), " ", "", -1), "[]")
+
+	// read bet
+	if len(fields) > 1 {
+		deal.Bet, _ = strconv.Atoi(fields[1])
+	}
+	return deal
+}
+
+// --- general
 func compareDeals(deal1, deal2 Deal) bool {
 	if deal1.SetSymbol == deal2.SetSymbol {
 		// if set symbols (counter card, ordered, changed to string, i.e "221") are the same
