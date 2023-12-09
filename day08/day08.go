@@ -1,7 +1,6 @@
 package day08
 
 import (
-	"fmt"
 	"regexp"
 	"slices"
 	"strings"
@@ -11,7 +10,6 @@ import (
 
 func Day08_1(filename string) (result int) {
 	m := ReadMap(filename)
-	fmt.Println(m)
 	result = m.GoToZZZ()
 	return result
 }
