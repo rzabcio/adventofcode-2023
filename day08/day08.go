@@ -3,6 +3,7 @@ package day08
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/rzabcio/adventofcode-2023/utils"
@@ -69,26 +70,13 @@ func (m *Map) GoToZZZ() (i int) {
 
 // part 2
 func (m *Map) GoToAllZ() (step int) {
-	currents := m.FindStarting()
-	lenght := len(currents)
-	fmt.Printf("Starting: %s\n", currents)
-	for {
-		instruction := string(m.Instruction[step%len(m.Instruction)])
-
-		needBreak := true
-		for i := 0; i < lenght; i++ {
-			currents[i] = m.Elements[currents[i]][instruction]
-			if currents[i][2] != 'Z' {
-				needBreak = false
-			}
-		}
-		fmt.Printf("- %d: %s => %s\n", step, instruction, currents)
-		if needBreak {
-			break
-		}
-		step++
+	startings := m.FindStarting()
+	// zeds := make(map[int][]int)
+	var zeds []int
+	for _, starting := range startings {
+		zeds = append(zeds, m.FindStepsWithZ(starting)[0])
 	}
-	return step + 1
+	return LCM(zeds...)
 }
 
 func (m *Map) FindStarting() (starting []string) {
@@ -98,4 +86,42 @@ func (m *Map) FindStarting() (starting []string) {
 		}
 	}
 	return starting
+}
+
+func (m *Map) FindStepsWithZ(starting string) (zeds []int) {
+	step := 0
+	visited := []string{starting}
+	current := starting
+	for {
+		instruction := string(m.Instruction[step%len(m.Instruction)])
+		current = m.Elements[current][instruction]
+		if slices.Contains(visited, current) && step%len(m.Instruction) == 0 && len(zeds) > 0 {
+			return zeds
+		}
+		visited = append(visited, current)
+		if current[2] == 'Z' {
+			zeds = append(zeds, step+1)
+		}
+		step++
+	}
+}
+
+// code copied from: https://siongui.github.io/2017/06/03/go-find-lcm-by-gcd/
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+func LCM(integers ...int) int {
+	a := integers[0]
+	b := integers[1]
+	result := a * b / GCD(a, b)
+	for i := 2; i < len(integers); i++ {
+		result = LCM(result, integers[i])
+	}
+	return result
 }
