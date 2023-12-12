@@ -9,11 +9,13 @@ import (
 
 func Day11_1(filename string) (result int) {
 	u := NewUniverse(filename)
-	result = u.DistanceSum()
+	result = u.DistanceSum(1)
 	return result
 }
 
 func Day11_2(filename string) (result int) {
+	u := NewUniverse(filename)
+	result = u.DistanceSum(999999)
 	return result
 }
 
@@ -52,25 +54,25 @@ func NewUniverse(filename string) (u *Universe) {
 	return u
 }
 
-func (u *Universe) Distance(g1, g2 *Galaxy) (dist int) {
+func (u *Universe) Distance(g1, g2 *Galaxy, additional int) (dist int) {
 	dist = int(math.Abs(float64(g1.x-g2.x)) + math.Abs(float64(g1.y-g2.y)))
 	for i := utils.Min([]int{g1.x, g2.x}) + 1; i < utils.Max([]int{g1.x, g2.x}); i++ {
 		if u.emptyCols[i] {
-			dist++
+			dist += additional
 		}
 	}
 	for i := utils.Min([]int{g1.y, g2.y}) + 1; i < utils.Max([]int{g1.y, g2.y}); i++ {
 		if u.emptyRows[i] {
-			dist++
+			dist += additional
 		}
 	}
 	return dist
 }
 
-func (u *Universe) DistanceSum() (sum int) {
+func (u *Universe) DistanceSum(additional int) (sum int) {
 	for i := 0; i < len(u.galaxies)-1; i++ {
 		for j := i + 1; j < len(u.galaxies); j++ {
-			dist := u.Distance(u.galaxies[i], u.galaxies[j])
+			dist := u.Distance(u.galaxies[i], u.galaxies[j], additional)
 			sum += dist
 		}
 	}
