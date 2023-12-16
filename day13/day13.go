@@ -11,8 +11,8 @@ import (
 func Day13_1(filename string) (result int) {
 	reflectionPatterns := readReflectionPatterns(filename)
 	for _, rp := range reflectionPatterns {
-		rp.findVertAxis()
 		rp.findHorizAxis()
+		rp.findVertAxis()
 		fmt.Println(rp)
 		result += rp.vertAxis + rp.horizAxis*100
 	}
@@ -22,9 +22,19 @@ func Day13_1(filename string) (result int) {
 func Day13_2(filename string) (result int) {
 	reflectionPatterns := readReflectionPatterns(filename)
 	for _, rp := range reflectionPatterns {
-		rp.findVertAxis()
 		rp.findHorizAxis()
-		fmt.Println(rp)
+		rp.findVertAxis()
+		// fmt.Printf("===== START %d =====\n%v\n", i, rp)
+		oldVertAxis, oldHorizAxis := rp.vertAxis, rp.horizAxis
+		rp.findAndFixSmudge()
+		rp.count()
+		// fmt.Printf(" oldVertAxis: %d, oldHorizAxis: %d => newVertAxis: %d, newHorizAxis: %d\n", oldVertAxis, oldHorizAxis, rp.vertAxis, rp.horizAxis)
+		if oldVertAxis != rp.vertAxis {
+			rp.horizAxis = 0
+		} else if oldHorizAxis != rp.horizAxis {
+			rp.vertAxis = 0
+		}
+		// fmt.Println(rp)
 		result += rp.vertAxis + rp.horizAxis*100
 	}
 	return result
@@ -45,25 +55,33 @@ func readReflectionPatterns(filename string) (result []ReflectionPattern) {
 			row = 0
 			continue
 		}
-		if rp.colCount == nil {
-			rp.colCount = make([]int, len(line))
-		}
-		rp.rowCount = append(rp.rowCount, 0)
 		pattern := []int{}
-		for col, c := range line {
+		for _, c := range line {
 			if c == '#' {
 				pattern = append(pattern, 1)
-				rp.colCount[col]++
-				rp.rowCount[row]++
 			} else {
 				pattern = append(pattern, 0)
 			}
 		}
 		rp.pattern = append(rp.pattern, pattern)
+		rp.count()
 		row++
 	}
 	result = append(result, rp)
 	return result
+}
+
+func (rp *ReflectionPattern) count() {
+	rp.colCount = make([]int, len(rp.pattern[0]))
+	rp.rowCount = make([]int, len(rp.pattern))
+	for row, pattern := range rp.pattern {
+		for col, c := range pattern {
+			if c == 1 {
+				rp.colCount[col]++
+				rp.rowCount[row]++
+			}
+		}
+	}
 }
 
 type ReflectionPattern struct {
@@ -122,7 +140,7 @@ func (rp ReflectionPattern) String() string {
 	return result
 }
 
-func (rp *ReflectionPattern) findVertAxis() {
+func (rp *ReflectionPattern) findVertAxis() bool {
 	possibleVertAxis := []int{}
 	for col := 0; col < len(rp.colCount)-1; col++ {
 		if rp.isColAxis(col) {
@@ -131,14 +149,16 @@ func (rp *ReflectionPattern) findVertAxis() {
 	}
 	if len(possibleVertAxis) > 0 {
 		rp.vertAxis = possibleVertAxis[0] + 1
+		return true
 	}
 	if len(possibleVertAxis) > 1 {
 		fmt.Printf("!!! error - there is more than one possible vertical axis: %d\n", possibleVertAxis)
 		fmt.Println(rp)
 	}
+	return false
 }
 
-func (rp *ReflectionPattern) findHorizAxis() {
+func (rp *ReflectionPattern) findHorizAxis() bool {
 	possibleHorizAxis := []int{}
 	for row := 0; row < len(rp.rowCount)-1; row++ {
 		if rp.isRowAxis(row) {
@@ -147,11 +167,13 @@ func (rp *ReflectionPattern) findHorizAxis() {
 	}
 	if len(possibleHorizAxis) > 0 {
 		rp.horizAxis = possibleHorizAxis[0] + 1
+		return true
 	}
 	if len(possibleHorizAxis) > 1 {
 		fmt.Printf("!!! error - there is more than one possible horizontal axis: %d\n", possibleHorizAxis)
 		fmt.Println(rp)
 	}
+	return false
 }
 
 func (rp *ReflectionPattern) isColAxis(col int) bool {
@@ -214,4 +236,75 @@ func (rp *ReflectionPattern) findRowsDiff(row1, row2 int) (result int) {
 		result += int(math.Abs(float64(col)))
 	}
 	return result
+}
+
+func (rp *ReflectionPattern) findAndFixSmudge() {
+	for row := 0; row < len(rp.rowCount)-1; row++ {
+		rowDiff := 0
+		ii := 0
+		for i := 0; ; i++ {
+			if row-i < 0 || row+i+1 >= len(rp.rowCount) {
+				break
+			}
+			d := rp.findRowsDiff(row-i, row+i+1)
+			rowDiff += d
+			if d == 1 {
+				ii = i
+			}
+		}
+		if rowDiff == 1 {
+			rp.fixSmudgeInRow(row-ii, row+ii+1)
+			rp.horizAxis = row + 1
+			return
+		}
+	}
+	for col := 0; col < len(rp.colCount)-1; col++ {
+		colDiff := 0
+		ii := 0
+		for i := 0; ; i++ {
+			if col-i < 0 || col+i+1 >= len(rp.colCount) {
+				break
+			}
+			d := rp.findColsDiff(col-i, col+i+1)
+			colDiff += d
+			if d == 1 {
+				ii = i
+			}
+		}
+		if colDiff == 1 {
+			rp.fixSmudgeInCol(col-ii, col+ii+1)
+			rp.vertAxis = col + 1
+			return
+		}
+	}
+}
+
+func (rp *ReflectionPattern) fixSmudgeInRow(row1, row2 int) {
+	if rp.findRowsDiff(row1, row2) != 1 {
+		fmt.Printf("!!! error - fixing smudge between rows %d, %d, but diff is not 1\n", row1, row2)
+		return
+	}
+	for i, diff := range rp.findRowsDiffs(row1, row2) {
+		if diff == 1 {
+			rp.pattern[row2][i] = 1
+		}
+		if diff == -1 {
+			rp.pattern[row1][i] = 1
+		}
+	}
+}
+
+func (rp *ReflectionPattern) fixSmudgeInCol(col1, col2 int) {
+	if rp.findColsDiff(col1, col2) != 1 {
+		fmt.Printf("!!! error - fixing smudge between cols %d, %d, but diff is not 1\n", col1, col2)
+		return
+	}
+	for i, diff := range rp.findColsDiffs(col1, col2) {
+		if diff == 1 {
+			rp.pattern[i][col2] = 1
+		}
+		if diff == -1 {
+			rp.pattern[i][col1] = 1
+		}
+	}
 }
