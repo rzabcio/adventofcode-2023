@@ -17,7 +17,14 @@ func Day14_1(filename string) (result int) {
 }
 
 func Day14_2(filename string) (result int) {
-	return result
+	rd := NewReflectorDish(filename)
+	for i := 0; i < 1000000000; i++ {
+		if i%10000000 == 0 {
+			fmt.Printf("i: %d\n", i)
+		}
+		rd.Cycle()
+	}
+	return rd.TotalLoad()
 }
 
 type ReflectorDish struct {
@@ -93,4 +100,23 @@ func (rd *ReflectorDish) RotateCounterClockwise() {
 		newStones = append(newStones, newLine)
 	}
 	rd.stones = newStones
+}
+
+func (rd *ReflectorDish) FlipVertically() {
+	newStones := []string{}
+	for i := len(rd.stones) - 1; i >= 0; i-- {
+		newStones = append(newStones, rd.stones[i])
+	}
+	rd.stones = newStones
+}
+
+func (rd *ReflectorDish) Cycle() {
+	rd.RotateClockwise() // north -> east
+	rd.TiltEast()        // tilt north
+	rd.RotateClockwise() // north -> south
+	rd.TiltEast()        // tilt west
+	rd.RotateClockwise() // north -> west
+	rd.TiltEast()        // tilt south
+	rd.RotateClockwise() // north -> north
+	rd.TiltEast()        // tilt east
 }
