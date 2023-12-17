@@ -13,7 +13,7 @@ func Day13_1(filename string) (result int) {
 	for _, rp := range reflectionPatterns {
 		rp.findHorizAxis()
 		rp.findVertAxis()
-		fmt.Println(rp)
+		// fmt.Println(rp)
 		result += rp.vertAxis + rp.horizAxis*100
 	}
 	return result
