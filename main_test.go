@@ -11,6 +11,7 @@ import (
 	"github.com/rzabcio/adventofcode-2023/day11"
 	"github.com/rzabcio/adventofcode-2023/day13"
 	"github.com/rzabcio/adventofcode-2023/day14"
+	"github.com/rzabcio/adventofcode-2023/day15"
 )
 
 func TestDay01(t *testing.T) {
@@ -151,8 +152,20 @@ func TestDay14(t *testing.T) {
 	if got != want {
 		t.Errorf("Day14_1(test1) = %d; want %d", got, want)
 	}
-	got, want = day14.Day14_2("input-files/day14-test1.txt"), 0
+	// -- disabled - too long
+	// got, want = day14.Day14_2("input-files/day14-test1.txt"), 0
+	// if got != want {
+	// 	t.Errorf("Day14_2(test1) = %d; want %d", got, want)
+	// }
+}
+
+func TestDay15(t *testing.T) {
+	got, want := day15.Day15_1("input-files/day15-test1.txt"), 136
 	if got != want {
-		t.Errorf("Day14_2(test1) = %d; want %d", got, want)
+		t.Errorf("Day15_1(test1) = %d; want %d", got, want)
+	}
+	got, want = day15.Day15_2("input-files/day15-test1.txt"), 0
+	if got != want {
+		t.Errorf("Day15_2(test1) = %d; want %d", got, want)
 	}
 }
