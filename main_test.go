@@ -13,6 +13,7 @@ import (
 	"github.com/rzabcio/adventofcode-2023/day14"
 	"github.com/rzabcio/adventofcode-2023/day15"
 	"github.com/rzabcio/adventofcode-2023/day16"
+	"github.com/rzabcio/adventofcode-2023/day18"
 )
 
 func TestDay01(t *testing.T) {
@@ -179,5 +180,16 @@ func TestDay16(t *testing.T) {
 	got, want = day16.Day16_2("input-files/day16-test1.txt"), 0
 	if got != want {
 		t.Errorf("Day16_2(test1) = %d; want %d", got, want)
+	}
+}
+
+func TestDay18(t *testing.T) {
+	got, want := day18.Day18_1("input-files/day18-test1.txt"), 136
+	if got != want {
+		t.Errorf("Day18_1(test1) = %d; want %d", got, want)
+	}
+	got, want = day18.Day18_2("input-files/day18-test1.txt"), 0
+	if got != want {
+		t.Errorf("Day18_2(test1) = %d; want %d", got, want)
 	}
 }
